@@ -4,6 +4,30 @@ __kernel void convolution2D(
     int width, int height, int maskWidth,  int imageChannels){
     //@@ Insert code to implement matrix multiplication here
 
+    int row = get_global_id(1);
+    int col = get_global_id(0);
+
+    int maskRadius = maskWidth / 2;
+
+    if (row < height && col < width) {
+        for (int k = 0; k < imageChannels; k++)
+        {
+            float accum = 0.0;
+            for (int y = -maskRadius; y <= maskRadius; y++) {
+                for (int x = -maskRadius; x <= maskRadius; x++) {
+                    int xOffset = col + x;
+                    int yOffset = row + y;
+                    if (xOffset > -1 && xOffset < width && yOffset > -1 && yOffset < height) {
+                        float imagePixel = inputData[(yOffset * width + xOffset) * imageChannels + k];
+                        float maskValue = maskData[(y+maskRadius)*maskWidth+x+maskRadius];
+                        accum += imagePixel * maskValue;
+                    }
+                }
+            }
+            outputData[(row*width + col) * imageChannels + k] = clamp(accum, 0.0f, 1.0f);
+        }
+    }
+
     /**
     maskRadius := maskWidth/2 # this is integer division, so the result is 2
     for i from 0 to height do
