@@ -4,8 +4,8 @@ __kernel void convolution2D(
     int width, int height, int maskWidth,  int imageChannels){
     //@@ Insert code to implement matrix multiplication here
 
-    int row = get_global_id(1);
-    int col = get_global_id(0);
+    int row = get_global_id(0);
+    int col = get_global_id(1);
 
     int maskRadius = maskWidth / 2;
 

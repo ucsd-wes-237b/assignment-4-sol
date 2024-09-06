@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 #include "device.h"
 #include "kernel.h"
@@ -129,15 +130,15 @@ void OpenCLConvolution2D(Matrix *input0, Matrix *input1, Matrix *result)
 
     // @@ define local and global work sizes
     // Execute the OpenCL kernel on the list
-    int global_x = ceil((float)input0->shape[1]/32.0f) * 32;
-    int global_y = ceil((float)input0->shape[0]/32.0f) * 32;
+    int global_x = ceil((float)input0->shape[0]/32.0f) * 32;
+    int global_y = ceil((float)input0->shape[1]/32.0f) * 32;
 
     int local_x = 32;
     int local_y = 32;
 
     size_t global_item_size[2] = {global_x, global_y}; 
     size_t local_item_size[2] = {local_x, local_y};
-
+    
     //@@ Launch the GPU Kernel here
     // Execute the OpenCL kernel on the array
     err = clEnqueueNDRangeKernel(queue, kernel, 2, NULL, global_item_size, local_item_size, 0, NULL, NULL);
@@ -203,7 +204,8 @@ int main(int argc, char *argv[])
     SaveImg(input_file_d, &host_c);
 
     // Check the result of the convolution
-    CheckImg(&answer, &host_c);
+    err = CheckImg(&answer, &host_c);
+    CHECK_ERR(err, "CheckImg");
 
     // Release host memory
     free(host_a.data);
